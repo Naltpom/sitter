@@ -86,12 +86,12 @@ async def load_user_permissions(db: AsyncSession, user_id: int) -> dict[str, boo
     for code, granted in result.all():
         effective[code] = granted
 
-    # 2. Role permissions (any role granting = True)
+    # 2. Role permissions (any active role granting = True)
     result = await db.execute(
         select(Permission.code).distinct()
         .join(RolePermission, RolePermission.permission_id == Permission.id)
         .join(UserRole, UserRole.role_id == RolePermission.role_id)
-        .where(UserRole.user_id == user_id)
+        .where(UserRole.user_id == user_id, UserRole.is_active.is_(True))
     )
     for (code,) in result.all():
         effective[code] = True

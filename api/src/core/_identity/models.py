@@ -103,6 +103,8 @@ class Role(Base):
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     color: Mapped[str | None] = mapped_column(String(7), nullable=True)
+    scope_type: Mapped[str] = mapped_column(String(20), nullable=False, default="global", server_default="global")
+    scope_id: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
@@ -115,8 +117,8 @@ class Role(Base):
     permissions = relationship("Permission", secondary="role_permissions", back_populates="roles")
 
     __table_args__ = (
-        UniqueConstraint("slug", name="uq_roles_slug"),
-        Index("ix_roles_slug", "slug", unique=True),
+        UniqueConstraint("slug", "scope_type", "scope_id", name="uq_roles_slug_scope"),
+        Index("ix_roles_scope", "scope_type", "scope_id"),
     )
 
 
@@ -149,6 +151,17 @@ class UserRole(Base):
 
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
     role_id: Mapped[int] = mapped_column(Integer, ForeignKey("roles.id", ondelete="CASCADE"), primary_key=True)
+    scope_type: Mapped[str] = mapped_column(String(20), nullable=False, default="global", server_default="global", primary_key=True)
+    scope_id: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0", primary_key=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default="true")
+    created_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, default=lambda: datetime.now(timezone.utc), server_default=func.now()
+    )
+
+    __table_args__ = (
+        Index("ix_user_roles_scope", "scope_type", "scope_id"),
+        Index("ix_user_roles_user_scope", "user_id", "scope_type", "scope_id"),
+    )
 
 
 class UserPermission(Base):
@@ -235,8 +248,16 @@ class Invitation(Base):
     )
     consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
+    # Scoped invitation fields
+    scope_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    scope_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    role_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("roles.id", ondelete="SET NULL"), nullable=True
+    )
+
     invited_by = relationship("User", foreign_keys=[invited_by_id])
     user = relationship("User", foreign_keys=[user_id])
+    role = relationship("Role", foreign_keys=[role_id])
 
 
 # ── Impersonation ────────────────────────────────────────────────────────
