@@ -2,165 +2,55 @@ name: Deploy
 
 on:
   workflow_dispatch:
-    inputs:
-      target:
-        description: "Deployment target"
-        required: true
-        default: "ssh"
-        type: choice
-        options:
-          - ssh
-          - cloud
-      environment:
-        description: "Target environment"
-        required: true
-        default: "staging"
-        type: choice
-        options:
-          - recette
-          - staging
-          - production
-
-  # Uncomment to auto-deploy after successful CI on main:
-  # workflow_run:
-  #   workflows: ["CI"]
-  #   types: [completed]
-  #   branches: [main]
 
 jobs:
-  # ─── SSH Deployment (VPS / Dedicated Server) ─────────────────────
-  deploy-ssh:
-    name: Deploy via SSH
-    if: inputs.target == 'ssh'
+  deploy:
+    name: Deploy to VPS
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
     steps:
-      - name: Deploy to server
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT || 22 }}
+          port: ${{ secrets.SSH_PORT }}
+          script_stop: true
+          command_timeout: 30m
           script: |
             set -e
-            cd ${{ secrets.APP_DIR || '/app' }}
-            COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml"
+            APP_DIR="${{ secrets.APP_DIR }}"
+            cd "$APP_DIR"
+            COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.vps.yml"
 
             echo "=== Pull latest code ==="
-            git pull origin main
+            git fetch origin master
+            git reset --hard origin/master
 
-            echo "=== Build new images (without stopping running containers) ==="
-            $COMPOSE build
+            echo "=== Stop and rebuild ==="
+            $COMPOSE down -v --remove-orphans || true
+            $COMPOSE build --no-cache
 
-            echo "=== Run migrations BEFORE switching to new code ==="
-            $COMPOSE run --rm -e POSTGRES_HOST=db -e POSTGRES_PORT=5432 api alembic -c alembic/alembic.ini upgrade head
-
-            echo "=== Rolling update: recreate services one by one ==="
-            $COMPOSE up -d --no-deps --force-recreate api
+            echo "=== Start all services ==="
+            $COMPOSE up -d
 
             echo "=== Wait for API to be healthy ==="
-            for i in $(seq 1 30); do
+            for i in $(seq 1 60); do
               if $COMPOSE exec -T api python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')" 2>/dev/null; then
                 echo "API is healthy (attempt $i)"
                 break
               fi
+              if [ "$i" -eq 60 ]; then
+                echo "API failed to become healthy"
+                $COMPOSE logs api --tail 50
+                exit 1
+              fi
               echo "Waiting for API health... (attempt $i)"
-              sleep 2
+              sleep 5
             done
 
-            $COMPOSE up -d --no-deps --force-recreate worker
-            $COMPOSE up -d --no-deps --force-recreate app
-            $COMPOSE up -d --no-deps --force-recreate nginx
-
             echo "=== Cleanup old images ==="
-            docker image prune -f
+            docker images --filter "reference=sitter*" --filter "dangling=true" -q | xargs -r docker rmi || true
 
             echo "=== Deployment complete ==="
             $COMPOSE ps
-
-  # ─── Cloud Deployment (Container Services) ───────────────────────
-  deploy-cloud:
-    name: Deploy to Cloud
-    if: inputs.target == 'cloud'
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
-    steps:
-      - uses: actions/checkout@v4
-
-      # ── AWS ECS ──────────────────────────────────────────────────
-      # Uncomment and configure for AWS ECS deployment:
-      #
-      # - name: Configure AWS credentials
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ${{ secrets.AWS_REGION }}
-      #
-      # - name: Login to ECR
-      #   id: ecr-login
-      #   uses: aws-actions/amazon-ecr-login@v2
-      #
-      # - name: Build and push API image
-      #   run: |
-      #     docker build -t ${{ steps.ecr-login.outputs.registry }}/template-api:${{ github.sha }} ./api
-      #     docker push ${{ steps.ecr-login.outputs.registry }}/template-api:${{ github.sha }}
-      #
-      # - name: Build and push App image
-      #   run: |
-      #     docker build -t ${{ steps.ecr-login.outputs.registry }}/template-app:${{ github.sha }} ./app
-      #     docker push ${{ steps.ecr-login.outputs.registry }}/template-app:${{ github.sha }}
-      #
-      # - name: Update ECS service
-      #   run: |
-      #     aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER }} --service ${{ secrets.ECS_SERVICE }} --force-new-deployment
-
-      # ── GCP Cloud Run ────────────────────────────────────────────
-      # Uncomment and configure for GCP Cloud Run deployment:
-      #
-      # - name: Authenticate to Google Cloud
-      #   uses: google-github-actions/auth@v2
-      #   with:
-      #     credentials_json: ${{ secrets.GCP_SA_KEY }}
-      #
-      # - name: Set up Cloud SDK
-      #   uses: google-github-actions/setup-gcloud@v2
-      #
-      # - name: Configure Docker for Artifact Registry
-      #   run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev
-      #
-      # - name: Build and push API
-      #   run: |
-      #     docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.GCP_REPO }}/api:${{ github.sha }} ./api
-      #     docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.GCP_REPO }}/api:${{ github.sha }}
-      #
-      # - name: Deploy API to Cloud Run
-      #   uses: google-github-actions/deploy-cloudrun@v2
-      #   with:
-      #     service: template-api
-      #     image: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/${{ secrets.GCP_REPO }}/api:${{ github.sha }}
-      #     region: ${{ secrets.GCP_REGION }}
-
-      # ── Azure Container Apps ─────────────────────────────────────
-      # Uncomment and configure for Azure Container Apps deployment:
-      #
-      # - name: Azure Login
-      #   uses: azure/login@v2
-      #   with:
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
-      #
-      # - name: Build and push to ACR
-      #   run: |
-      #     az acr login --name ${{ secrets.ACR_NAME }}
-      #     docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/template-api:${{ github.sha }} ./api
-      #     docker push ${{ secrets.ACR_NAME }}.azurecr.io/template-api:${{ github.sha }}
-      #
-      # - name: Deploy to Container Apps
-      #   run: |
-      #     az containerapp update --name template-api \
-      #       --resource-group ${{ secrets.AZURE_RG }} \
-      #       --image ${{ secrets.ACR_NAME }}.azurecr.io/template-api:${{ github.sha }}
-
-      - name: Placeholder
-        run: echo "Configure a cloud provider above by uncommenting the relevant section"
