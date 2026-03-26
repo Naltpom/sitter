@@ -52,17 +52,22 @@ def invalidate_permission_cache(user_id: int | None = None) -> None:
         logger.debug("Permission cache fully cleared")
 
 
-async def load_user_permissions(db: AsyncSession, user_id: int) -> dict[str, bool | None]:
-    """
-    Load the effective permission set for a user.
+# ---------------------------------------------------------------------------
+#  Core loader — scoped permissions
+# ---------------------------------------------------------------------------
 
-    Results are cached in-process with a TTL to avoid repeated SQL queries
-    on every request.
 
-    Resolution order: user_permissions > role_permissions > global_permissions.
-    Returns dict of {permission_code: True/False/None}.
+async def load_user_scoped_permissions(db: AsyncSession, user_id: int) -> dict[str, PermissionGrant]:
     """
-    # Check cache first
+    Load the effective permission set for a user with full scope information.
+
+    Resolution order:
+    1. GlobalPermission → is_global=True
+    2. RolePermission via UserRole → global scope → is_global, other → scopes[scope_type]
+    3. UserPermission (override) → granted=True → is_global, granted=False → remove
+
+    Results are cached in-process with a TTL.
+    """
     cached = _permission_cache.get(user_id)
     if cached is not None:
         return cached
@@ -75,26 +80,38 @@ async def load_user_permissions(db: AsyncSession, user_id: int) -> dict[str, boo
         UserRole,
     )
 
-    effective: dict[str, bool | None] = {}
+    grants: dict[str, PermissionGrant] = {}
 
-    # 1. Global permissions
+    # 1. Global permissions (apply to all authenticated users)
     result = await db.execute(
         select(Permission.code, GlobalPermission.granted).join(
             GlobalPermission, GlobalPermission.permission_id == Permission.id
         )
     )
     for code, granted in result.all():
-        effective[code] = granted
+        if granted:
+            grants[code] = PermissionGrant(is_global=True)
 
-    # 2. Role permissions (any active role granting = True)
+    # 2. Role permissions from ALL user roles (global + scoped)
+    #    Inactive scoped memberships (is_active=False) are excluded.
     result = await db.execute(
-        select(Permission.code).distinct()
+        select(Permission.code, UserRole.scope_type, UserRole.scope_id).distinct()
         .join(RolePermission, RolePermission.permission_id == Permission.id)
         .join(UserRole, UserRole.role_id == RolePermission.role_id)
-        .where(UserRole.user_id == user_id, UserRole.is_active.is_(True))
+        .where(UserRole.user_id == user_id, UserRole.is_active == True)  # noqa: E712
     )
-    for (code,) in result.all():
-        effective[code] = True
+    for code, scope_type, scope_id in result.all():
+        if code not in grants:
+            grants[code] = PermissionGrant()
+        grant = grants[code]
+
+        if scope_type == "global":
+            grant.is_global = True
+        elif scope_id:
+            if scope_type not in grant.scopes:
+                grant.scopes[scope_type] = []
+            if scope_id not in grant.scopes[scope_type]:
+                grant.scopes[scope_type].append(scope_id)
 
     # 3. User-specific permissions (highest priority)
     result = await db.execute(
@@ -103,11 +120,31 @@ async def load_user_permissions(db: AsyncSession, user_id: int) -> dict[str, boo
         ).where(UserPermission.user_id == user_id)
     )
     for code, granted in result.all():
-        effective[code] = granted
+        if granted:
+            if code not in grants:
+                grants[code] = PermissionGrant(is_global=True)
+            else:
+                grants[code].is_global = True
+        else:
+            grants.pop(code, None)
 
-    # Store in cache
-    _permission_cache[user_id] = effective
-    return effective
+    _permission_cache[user_id] = grants
+    return grants
+
+
+# ---------------------------------------------------------------------------
+#  Backward-compatible wrapper
+# ---------------------------------------------------------------------------
+
+
+async def load_user_permissions(db: AsyncSession, user_id: int) -> dict[str, bool | None]:
+    """
+    Backward-compatible wrapper: returns {code: True/False/None}.
+
+    Delegates to load_user_scoped_permissions internally.
+    """
+    scoped = await load_user_scoped_permissions(db, user_id)
+    return {code: True for code, grant in scoped.items() if grant.granted}
 
 
 def require_permission(*codes: str):

@@ -284,13 +284,19 @@ async def get_my_permissions(
 
     Returns a dict where each key is a permission code and the value
     contains is_global (bool) and scopes (dict of scope_type -> list of scope_ids).
-    This is a generic format that does not depend on any specific feature.
     """
-    from ..permissions import load_user_permissions
+    from ..permissions import load_user_scoped_permissions
 
-    perms = await load_user_permissions(db, current_user.id)
+    grants = await load_user_scoped_permissions(db, current_user.id)
     return {
-        "permissions": [code for code, granted in perms.items() if granted is True],
+        "permissions": {
+            code: {
+                "is_global": grant.is_global,
+                "scopes": grant.scopes,
+            }
+            for code, grant in grants.items()
+            if grant.granted
+        }
     }
 
 
