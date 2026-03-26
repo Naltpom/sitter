@@ -49,6 +49,9 @@ jobs:
               sleep 5
             done
 
+            echo "=== Seed data (admin + demo users + roles) ==="
+            $COMPOSE exec -T api python -m src.seed
+
             echo "=== Cleanup old images ==="
             docker images --filter "reference=sitter*" --filter "dangling=true" -q | xargs -r docker rmi || true
 
