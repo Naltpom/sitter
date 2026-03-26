@@ -12,7 +12,7 @@ Firewall Cisco HA                       ← gere par ADMIN SYS
 Firewall dedie                          ← gere par ADMIN SYS
     |
 ┌───────────────────────────────────────────────────────────┐
-│  Serveur (NEXORA-PROD / NEXORA-DEV)                          │
+│  Serveur (SITTER-PROD / SITTER-DEV)                          │
 │                                                           │
 │  ┌─────────────────────────────────────────────────────┐  │
 │  │  Docker Compose                                     │  │
@@ -117,10 +117,10 @@ Navigateur → Nginx (max 50MB) → API → ClamAV (scan) → Volume Docker (upl
 
 | Environnement  | Serveur VPS | Specs                  | Usage                   |
 | -------------- | ----------- | ---------------------- | ----------------------- |
-| **Production** | NEXORA-PROD | 8 cores, 16 Go, 2 To   | Utilisateurs finaux     |
-| **Staging**    | NEXORA-DEV  | 4 cores, 8 Go, 146 Go  | Tests pre-production    |
-| **Recette**    | NEXORA-DEV  | (partage avec staging) | Validation client       |
-| **PRA**        | NEXORA-PRA  | 8 cores, 16 Go, 146 Go | Reprise d'activite (1h) |
+| **Production** | SITTER-PROD | 8 cores, 16 Go, 2 To   | Utilisateurs finaux     |
+| **Staging**    | SITTER-DEV  | 4 cores, 8 Go, 146 Go  | Tests pre-production    |
+| **Recette**    | SITTER-DEV  | (partage avec staging) | Validation client       |
+| **PRA**        | SITTER-PRA  | 8 cores, 16 Go, 146 Go | Reprise d'activite (1h) |
 | **Dev**        | Local       | Variable               | Developpement           |
 
 Tous les environnements sauf "Dev" utilisent `docker-compose.prod.yml`.

@@ -13,7 +13,7 @@ cp .env.example .env
 docker compose up -d
 ```
 
-L'application est accessible sur `http://localhost:5472`.
+L'application est accessible sur `http://localhost:5482`.
 
 ## Workflow
 

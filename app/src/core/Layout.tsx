@@ -39,7 +39,7 @@ export default function Layout({
   const { settings: appSettings } = useAppSettings();
 
   useEffect(() => {
-    const appTitle = appSettings.app_name || "Nexora";
+    const appTitle = appSettings.app_name || "Sitter";
     document.title = title ? `${title} | ${appTitle}` : appTitle;
     return () => {
       document.title = appTitle;

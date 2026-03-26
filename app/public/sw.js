@@ -1,4 +1,4 @@
-// Service Worker for Web Push Notifications - Nexora
+// Service Worker for Web Push Notifications - Sitter
 
 self.addEventListener('push', function(event) {
   if (!event.data) return;
@@ -14,7 +14,7 @@ self.addEventListener('push', function(event) {
     body: data.body || '',
     icon: '/logo_full.svg',
     badge: '/logo_full.svg',
-    tag: data.tag || 'nexora-notification',
+    tag: data.tag || 'sitter-notification',
     data: {
       url: data.url || '/',
     },

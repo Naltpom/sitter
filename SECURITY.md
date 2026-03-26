@@ -2,16 +2,16 @@
 
 ## Versions supportees
 
-| Version | Support |
-|---------|---------|
-| derniere release | oui |
-| versions anterieures | non |
+| Version              | Support |
+| -------------------- | ------- |
+| derniere release     | oui     |
+| versions anterieures | non     |
 
 ## Signaler une vulnerabilite
 
 Si vous decouvrez une faille de securite, **ne creez pas d'issue publique**.
 
-Utilisez la fonctionnalite [**Security Advisories**](https://github.com/Naltpom/Nexora/security/advisories/new) de GitHub pour signaler la vulnerabilite de maniere privee.
+Utilisez la fonctionnalite [**Security Advisories**](https://github.com/Naltpom/Sitter/security/advisories/new) de GitHub pour signaler la vulnerabilite de maniere privee.
 
 Incluez :
 

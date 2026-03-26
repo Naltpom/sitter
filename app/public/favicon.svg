@@ -2,7 +2,7 @@
   <rect width="64" height="64" rx="12" fill="#0F172A"/>
   
   <defs>
-    <linearGradient id="nexora_grad1" x1="16" y1="16" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+    <linearGradient id="sitter_grad1" x1="16" y1="16" x2="48" y2="48" gradientUnits="userSpaceOnUse">
       <stop stop-color="#3B82F6" /> <stop offset="1" stop-color="#A855F7" /> </linearGradient>
     <filter id="aura_glow" x="-50%" y="-50%" width="200%" height="200%">
       <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
@@ -14,8 +14,8 @@
   </defs>
 
   <g filter="url(#aura_glow)">
-    <path d="M20 16V48" stroke="url(#nexora_grad1)" stroke-width="6" stroke-linecap="round"/>
-    <path d="M44 16V48" stroke="url(#nexora_grad1)" stroke-width="6" stroke-linecap="round"/>
-    <path d="M20 20L44 44" stroke="url(#nexora_grad1)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M20 16V48" stroke="url(#sitter_grad1)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M44 16V48" stroke="url(#sitter_grad1)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M20 20L44 44" stroke="url(#sitter_grad1)" stroke-width="6" stroke-linecap="round"/>
   </g>
 </svg>

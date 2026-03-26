@@ -1,26 +1,26 @@
-# Nexora
+# Sitter
 
 Application modulaire full-stack avec architecture feature-based, Feature Registry et RBAC.
 
 ## Stack technique
 
-| Couche | Technologies |
-|--------|-------------|
-| **Frontend** | React 18, TypeScript, Vite, SCSS, i18next |
-| **Backend** | FastAPI, Python 3.11, SQLAlchemy async, Alembic |
-| **Base de donnees** | PostgreSQL 15 |
-| **Cache / Queue** | Redis 7, ARQ (background tasks) |
-| **Infra** | Docker Compose, GitHub Actions CI |
+| Couche              | Technologies                                    |
+| ------------------- | ----------------------------------------------- |
+| **Frontend**        | React 18, TypeScript, Vite, SCSS, i18next       |
+| **Backend**         | FastAPI, Python 3.11, SQLAlchemy async, Alembic |
+| **Base de donnees** | PostgreSQL 15                                   |
+| **Cache / Queue**   | Redis 7, ARQ (background tasks)                 |
+| **Infra**           | Docker Compose, GitHub Actions CI               |
 
 ## Services
 
-| Service | Port | Description |
-|---------|------|-------------|
-| `db` | 5470 | PostgreSQL |
-| `redis` | 6479 | Redis |
-| `api` | 5471 | Backend FastAPI |
-| `worker` | — | Worker ARQ (jobs async) |
-| `app` | 5472 | Frontend React/Vite |
+| Service  | Port | Description             |
+| -------- | ---- | ----------------------- |
+| `db`     | 5480 | PostgreSQL              |
+| `redis`  | 6489 | Redis                   |
+| `api`    | 5481 | Backend FastAPI         |
+| `worker` | —    | Worker ARQ (jobs async) |
+| `app`    | 5482 | Frontend React/Vite     |
 
 ## Demarrage rapide
 
@@ -32,7 +32,7 @@ cp .env.example .env
 docker compose up -d
 
 # 3. L'API applique automatiquement les migrations et demarre
-#    Le frontend est accessible sur http://localhost:5472
+#    Le frontend est accessible sur http://localhost:5482
 ```
 
 ## Developpement

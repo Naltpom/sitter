@@ -36,14 +36,14 @@ docker run -d \
     --name temp_nginx_ssl \
     -p 80:80 \
     -v "$(pwd)/deploy/nginx/tmp/init.conf:/etc/nginx/conf.d/default.conf" \
-    -v nexora_certbot_www:/var/www/certbot \
+    -v sitter_certbot_www:/var/www/certbot \
     nginx:1.27-alpine
 
 echo "=== Phase 2: Requesting certificate from Let's Encrypt ==="
 
 docker run --rm \
-    -v nexora_certbot_conf:/etc/letsencrypt \
-    -v nexora_certbot_www:/var/www/certbot \
+    -v sitter_certbot_conf:/etc/letsencrypt \
+    -v sitter_certbot_www:/var/www/certbot \
     certbot/certbot certonly \
     --webroot \
     --webroot-path=/var/www/certbot \

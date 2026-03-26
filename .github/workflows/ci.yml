@@ -103,7 +103,7 @@ jobs:
     needs: [lint-backend, lint-frontend, lint-scss]
     continue-on-error: true
     env:
-      COMPOSE_PROJECT_NAME: template_02
+      COMPOSE_PROJECT_NAME: sitter
     steps:
       - uses: actions/checkout@v6
 
@@ -122,10 +122,10 @@ jobs:
           sudo apt-get install -y trivy
 
       - name: Scan API image
-        run: trivy image --severity CRITICAL,HIGH --ignore-unfixed --exit-code 0 template_02-api:latest
+        run: trivy image --severity CRITICAL,HIGH --ignore-unfixed --exit-code 0 sitter-api:latest
 
       - name: Scan App image
-        run: trivy image --severity CRITICAL,HIGH --ignore-unfixed --exit-code 0 template_02-app:latest
+        run: trivy image --severity CRITICAL,HIGH --ignore-unfixed --exit-code 0 sitter-app:latest
 
   # ── Build, migrations, smoke tests ───────────────────────────────
   build-and-check:
@@ -133,7 +133,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint-backend, lint-frontend, lint-scss]
     env:
-      COMPOSE_PROJECT_NAME: template_02
+      COMPOSE_PROJECT_NAME: sitter
     steps:
       - uses: actions/checkout@v6
 
@@ -197,7 +197,7 @@ jobs:
 
       - name: Wait for API and App healthy
         run: |
-          for pair in "api:nexora_api" "app:nexora_app"; do
+          for pair in "api:sitter_api" "app:sitter_app"; do
             svc="${pair%%:*}"
             ctr="${pair##*:}"
             echo "Waiting for $svc ($ctr)..."
@@ -252,16 +252,16 @@ jobs:
 
       - name: Run backend smoke tests (pytest)
         run: |
-          docker cp api/tests nexora_api:/app/tests
-          docker cp api/pytest.ini nexora_api:/app/pytest.ini
-          docker cp api/requirements-test.txt nexora_api:/app/requirements-test.txt
+          docker cp api/tests sitter_api:/app/tests
+          docker cp api/pytest.ini sitter_api:/app/pytest.ini
+          docker cp api/requirements-test.txt sitter_api:/app/requirements-test.txt
           docker compose -f docker-compose.yml exec -T api sh -c \
             "pip install -q -r requirements-test.txt && python -m pytest tests/ -v --tb=short"
 
       - name: Generate Playwright auth state
         run: |
-          docker cp api/tests/generate_auth_state.py nexora_api:/app/tests/generate_auth_state.py
-          docker compose -f docker-compose.yml exec -T -e PLAYWRIGHT_ORIGIN=http://localhost:5472 api \
+          docker cp api/tests/generate_auth_state.py sitter_api:/app/tests/generate_auth_state.py
+          docker compose -f docker-compose.yml exec -T -e PLAYWRIGHT_ORIGIN=http://localhost:5482 api \
             python -m tests.generate_auth_state > app/tests/.auth-state.json
 
       - uses: actions/setup-node@v6
@@ -277,7 +277,7 @@ jobs:
 
       - name: Run frontend smoke tests (Playwright)
         working-directory: app
-        run: BASE_URL=http://localhost:5472 npx playwright test --reporter=list
+        run: BASE_URL=http://localhost:5482 npx playwright test --reporter=list
 
       # ── Cleanup ─────────────────────────────────────────────────
 

@@ -68,12 +68,12 @@ class Settings(BaseSettings):
     # SSO - Google OAuth2
     SSO_GOOGLE_CLIENT_ID: str = ""
     SSO_GOOGLE_CLIENT_SECRET: str = ""
-    SSO_GOOGLE_REDIRECT_URI: str = "http://localhost:5472/sso/callback/google"
+    SSO_GOOGLE_REDIRECT_URI: str = "http://localhost:5482/sso/callback/google"
 
     # SSO - GitHub OAuth2
     SSO_GITHUB_CLIENT_ID: str = ""
     SSO_GITHUB_CLIENT_SECRET: str = ""
-    SSO_GITHUB_REDIRECT_URI: str = "http://localhost:5472/sso/callback/github"
+    SSO_GITHUB_REDIRECT_URI: str = "http://localhost:5482/sso/callback/github"
 
     # MFA - TOTP
     MFA_TOTP_ISSUER_NAME: str = "Sitter"
@@ -127,7 +127,7 @@ class Settings(BaseSettings):
     I18N_SUPPORTED_LOCALES: str = "fr,en"
 
     # Frontend URL (for reset password links)
-    FRONTEND_URL: str = "http://localhost:5472"
+    FRONTEND_URL: str = "http://localhost:5482"
 
     # CORS
     CORS_ORIGINS: str = ""  # Comma-separated origins; empty = use FRONTEND_URL

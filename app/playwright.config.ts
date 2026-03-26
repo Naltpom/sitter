@@ -7,7 +7,7 @@ export default defineConfig({
   reporter: 'list',
   use: {
     // Inside Docker: Vite dev server on port 3000, proxies /api to api:8000
-    // From host: BASE_URL=http://localhost:5472
+    // From host: BASE_URL=http://localhost:5482
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
     headless: true,
     screenshot: 'only-on-failure',

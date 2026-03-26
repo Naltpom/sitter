@@ -2,12 +2,12 @@
 
 ## Strategie de backup
 
-| Quoi | Comment | Frequence | Retention |
-|------|---------|-----------|-----------|
-| Base de donnees | `pg_dump` compresse | Quotidien (cron) | 30 jours |
-| Fichiers uploads | tar.gz des volumes | Quotidien (cron) | 30 jours |
-| Meilisearch | Snapshot interne | Auto (rebuild possible) | — |
-| Secrets | Fichiers `./secrets/` | Copie manuelle securisee | — |
+| Quoi             | Comment               | Frequence                | Retention |
+| ---------------- | --------------------- | ------------------------ | --------- |
+| Base de donnees  | `pg_dump` compresse   | Quotidien (cron)         | 30 jours  |
+| Fichiers uploads | tar.gz des volumes    | Quotidien (cron)         | 30 jours  |
+| Meilisearch      | Snapshot interne      | Auto (rebuild possible)  | —         |
+| Secrets          | Fichiers `./secrets/` | Copie manuelle securisee | —         |
 
 > **Note infra Syspark** : les backups horaires et le PRA (sync quotidienne + activation 1h)
 > sont geres au niveau infrastructure. Les backups applicatifs ci-dessous sont un filet
@@ -24,7 +24,7 @@
 chmod +x deploy/scripts/backup.sh
 
 # Ajouter au cron (backup quotidien a 3h du matin)
-(crontab -l 2>/dev/null; echo "0 3 * * * cd /app && ./deploy/scripts/backup.sh >> /var/log/nexora-backup.log 2>&1") | crontab -
+(crontab -l 2>/dev/null; echo "0 3 * * * cd /app && ./deploy/scripts/backup.sh >> /var/log/sitter-backup.log 2>&1") | crontab -
 ```
 
 ### Execution manuelle
@@ -35,12 +35,14 @@ cd /app
 ```
 
 Les fichiers sont crees dans `./backups/` :
+
 - `db_YYYYMMDD_HHMMSS.dump` — dump PostgreSQL (format custom, compresse)
 - `uploads_YYYYMMDD_HHMMSS.tar.gz` — fichiers uploades
 
 ### Configuration
 
 Variables d'environnement (dans le shell ou en prefixe de la commande) :
+
 - `BACKUP_DIR` : dossier de destination (defaut: `./backups`)
 - `RETENTION_DAYS` : nombre de jours de retention (defaut: 30)
 
@@ -77,7 +79,7 @@ $COMPOSE start api worker
 COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml"
 
 # 1. Copier l'archive dans le container API
-docker cp backups/uploads_20260302_030000.tar.gz nexora_api:/tmp/
+docker cp backups/uploads_20260302_030000.tar.gz sitter_api:/tmp/
 
 # 2. Extraire
 $COMPOSE exec api tar xzf /tmp/uploads_20260302_030000.tar.gz -C /

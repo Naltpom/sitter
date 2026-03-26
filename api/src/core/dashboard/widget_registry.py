@@ -77,7 +77,7 @@ class WidgetRegistry:
 widget_registry = WidgetRegistry()
 
 # ── Register built-in template widgets ────────────────────────────────────
-# These are generic widgets that ship with the Nexora template.
+# These are generic widgets that ship with the Sitter template.
 # Project-specific features register their own widgets via their manifest
 # or by calling widget_registry.register() at import time.
 

@@ -184,7 +184,7 @@ def upgrade() -> None:
     # ── 6. Default app settings ───────────────────────────────────────────
     conn.execute(sa.text("""
         INSERT INTO app_settings (key, value, updated_at) VALUES
-            ('app_name', 'Nexora', NOW()),
+            ('app_name', 'Sitter', NOW()),
             ('app_description', '', NOW()),
             ('app_logo', '/logo_full.svg', NOW()),
             ('app_favicon', '/favicon.svg', NOW()),

@@ -64,7 +64,7 @@ ANNOUNCEMENT_TEMPLATES: list[dict[str, Any]] = [
     },
     # ── Active modals (dismissible) ────────────────────────────────
     {
-        "title": "Bienvenue sur Nexora v2026.03 !",
+        "title": "Bienvenue sur Sitter v2026.03 !",
         "body": (
             "<p>Nous sommes ravis de vous presenter la nouvelle version.</p>"
             "<h3>Nouveautes</h3>"

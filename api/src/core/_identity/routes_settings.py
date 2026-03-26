@@ -20,7 +20,7 @@ router = APIRouter()
 
 # Default settings with their initial values
 DEFAULTS: dict[str, str] = {
-    "app_name": "Nexora",
+    "app_name": "Sitter",
     "app_description": "",
     "app_logo": "/logo_full.svg",
     "app_favicon": "/favicon.svg",

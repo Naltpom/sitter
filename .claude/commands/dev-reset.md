@@ -49,4 +49,4 @@ Genere ~10 000 entrees par feature (users, events, notifications, etc.) pour avo
 Afficher un resume :
 - Status des 3 containers (db, api, app)
 - Comptes demo disponibles
-- URLs d'acces (http://localhost:5472)
+- URLs d'acces (http://localhost:5482)

@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026.03.9
+
+### chore — Renommage Nexora → Sitter
+
+- **Branding** : renommage global de "Nexora" en "Sitter" dans tous les fichiers (config, fixtures, UI, docs, CI, deploy)
+- **Ports** : correction du decalage de ports (5470/5471/5472 → 5480/5481/5482) dans config.py, CI, README, CONTRIBUTING, Playwright, .env.example
+- **CI** : correction des noms de containers (`nexora_*` → `sitter_*`) dans ci.yml
+- **Migration** : ajout de la migration Alembic pour export_history, dashboard_layouts.full_width, notifications.required_permission, users.can_login, suppression contrainte uq_sso_user_provider
+
 ## 2026.03.8
 
 ### _identity / impersonation
