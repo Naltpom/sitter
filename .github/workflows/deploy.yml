@@ -2,10 +2,19 @@ name: Deploy
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Mode de deploiement'
+        required: true
+        type: choice
+        options:
+          - production
+          - reset
+        default: production
 
 jobs:
   deploy:
-    name: Deploy to VPS
+    name: Deploy to VPS (${{ inputs.mode }})
     runs-on: ubuntu-latest
     steps:
       - name: Deploy via SSH
@@ -20,19 +29,32 @@ jobs:
           script: |
             set -e
             APP_DIR="${{ secrets.APP_DIR }}"
+            MODE="${{ inputs.mode }}"
             cd "$APP_DIR"
             COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.vps.yml"
+
+            echo "=== Deploy mode: $MODE ==="
 
             echo "=== Pull latest code ==="
             git fetch origin master
             git reset --hard origin/master
 
-            echo "=== Stop and rebuild ==="
-            $COMPOSE down -v --remove-orphans || true
-            $COMPOSE build --no-cache
+            if [ "$MODE" = "reset" ]; then
+              echo "=== RESET: Stop all + remove volumes ==="
+              $COMPOSE down -v --remove-orphans || true
 
-            echo "=== Start all services ==="
-            $COMPOSE up -d
+              echo "=== RESET: Build from scratch ==="
+              $COMPOSE build --no-cache
+
+              echo "=== RESET: Start all services ==="
+              $COMPOSE up -d
+            else
+              echo "=== PRODUCTION: Build updated images ==="
+              $COMPOSE build
+
+              echo "=== PRODUCTION: Rolling restart (zero-downtime) ==="
+              $COMPOSE up -d --remove-orphans
+            fi
 
             echo "=== Wait for API to be healthy ==="
             for i in $(seq 1 60); do
@@ -49,11 +71,19 @@ jobs:
               sleep 5
             done
 
-            echo "=== Seed data (admin + demo users + roles) ==="
-            $COMPOSE exec -T api python -m src.seed
+            if [ "$MODE" = "reset" ]; then
+              echo "=== RESET: Seed data (admin + demo users) ==="
+              $COMPOSE exec -T api python -m src.seed
+
+              echo "=== RESET: Generate mass fixtures ==="
+              $COMPOSE exec -T api python -m src.run_fixtures --scale 10000
+            else
+              echo "=== PRODUCTION: Migrations already applied by entrypoint ==="
+              echo "=== PRODUCTION: No data wipe, no seed ==="
+            fi
 
             echo "=== Cleanup old images ==="
             docker images --filter "reference=sitter*" --filter "dangling=true" -q | xargs -r docker rmi || true
 
-            echo "=== Deployment complete ==="
+            echo "=== Deployment complete ($MODE) ==="
             $COMPOSE ps

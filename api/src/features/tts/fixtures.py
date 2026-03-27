@@ -3,7 +3,7 @@
 from ...core.fixture_registry import FixtureDefinition
 
 
-async def _generate_voices(db, fake, context):
+async def _generate_voices(db, ctx):
     """Seed generic Piper French voices."""
     from .models import Voice
 
