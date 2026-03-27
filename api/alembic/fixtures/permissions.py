@@ -122,4 +122,9 @@ ALL_PERMISSIONS: list[tuple[str, str]] = [
     # announcement
     ("announcement.read", "announcement"),
     ("announcement.manage", "announcement"),
+    # tts
+    ("tts.read", "tts"),
+    ("tts.create", "tts"),
+    ("tts.manage_voices", "tts"),
+    ("tts.manage", "tts"),
 ]

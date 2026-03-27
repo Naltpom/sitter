@@ -91,7 +91,7 @@ def create_app() -> FastAPI:
     application = FastAPI(
         title="Sitter",
         description="Application de gestion de pet-sitting",
-        version="2026.03.9",
+        version="2026.03.10",
         lifespan=lifespan,
         docs_url="/api/docs" if settings.is_dev else None,
         openapi_url="/api/openapi.json" if settings.is_dev else None,

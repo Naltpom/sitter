@@ -1,0 +1,26 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install base API dependencies first (for shared models, config, etc.)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install TTS-specific dependencies (PyTorch CPU + Piper + Coqui TTS)
+COPY requirements-tts.txt .
+RUN pip install --no-cache-dir \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    -r requirements-tts.txt
+
+COPY src/ ./src/
+COPY alembic/ ./alembic/
+
+RUN mkdir -p /app/tts_models /app/uploads/tts/output /app/uploads/tts/references
+
+CMD ["python", "-m", "arq", "src.features.tts.tts_worker.WorkerSettings"]

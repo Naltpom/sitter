@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026.03.10
+
+### tts (NEW)
+
+- **Synthese vocale locale** : nouvelle feature 100% offline (pas d'API externe) pour convertir du texte en audio avec plusieurs voix
+- **Voix generiques** : voix Piper TTS pre-installees (Siwis femme, UPMC homme) — rapide sur CPU, support francais natif
+- **Clonage de voix** : creation de voix personnalisees via Coqui XTTS v2 — upload ou enregistrement in-app d'un audio de reference (min 6s), auto-detection GPU/CPU
+- **Editeur multi-voix** : editeur TipTap avec @mentions de voix (@nathan, @emmanuelle...) — le texte apres chaque @mention utilise la voix correspondante jusqu'au prochain ping
+- **Enregistrement in-app** : enregistreur audio integre (MediaRecorder API) avec preview, timer, validation duree minimum
+- **Generation async** : traitement en arriere-plan via worker TTS dedie (ARQ), progression segment par segment avec polling temps reel
+- **Worker TTS dedie** : nouveau service Docker separe (`tts-worker`) avec PyTorch CPU + ffmpeg — ne charge pas le container API
+- **Lecteur audio** : player custom avec play/pause, seek, timer, bouton telecharger MP3
+- **Gestion des conversations** : CRUD conversations avec sauvegarde du script et historique des generations
+- **Permissions** : `tts.read`, `tts.create`, `tts.manage_voices`, `tts.manage`
+
 ## 2026.03.9
 
 ### chore — Renommage Nexora → Sitter

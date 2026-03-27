@@ -145,6 +145,15 @@ class Settings(BaseSettings):
     PERMISSION_CACHE_TTL_SECONDS: int = 300  # 5 min
     PERMISSION_CACHE_MAX_SIZE: int = 1000
 
+    # TTS
+    TTS_MODELS_DIR: str = "/app/tts_models"
+    TTS_OUTPUT_DIR: str = "/app/uploads/tts/output"
+    TTS_REFERENCE_DIR: str = "/app/uploads/tts/references"
+    TTS_DEFAULT_VOICE_SLUG: str = "siwis"
+    TTS_MAX_TEXT_LENGTH: int = 10000
+    TTS_MAX_REFERENCE_AUDIO_MB: int = 20
+    TTS_CROSSFADE_MS: int = 100
+
     # Redis
     REDIS_URL: str = "redis://redis:6379/0"
 

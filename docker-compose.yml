@@ -142,6 +142,31 @@ services:
       retries: 5
       start_period: 10s
 
+  tts-worker:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.tts
+    container_name: sitter_tts_worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - upload_files:/app/uploads
+      - tts_models:/app/tts_models
+    depends_on:
+      db:
+        condition: service_healthy
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
   app:
     build:
       context: ./app
@@ -168,5 +193,6 @@ volumes:
   redis_data:
   upload_files:
   rich_text_images:
+  tts_models:
   clamav_data:
   meilisearch_data:

@@ -1,0 +1,653 @@
+/* TTS Feature Styles */
+
+/* ── Layout split ──────────────────────────────────────────── */
+.tts-page {
+  display: flex;
+  gap: var(--section-gap, 24px);
+  align-items: flex-start;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.tts-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.tts-sidebar-card {
+  position: sticky;
+  top: 80px;
+}
+
+.tts-sidebar-body {
+  padding: 8px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.tts-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--density-gap, 12px);
+  min-width: 0;
+}
+
+.tts-form-group-grow {
+  flex: 1;
+}
+
+/* ── Card content (replaces missing unified-card-body) ─────── */
+.tts-card-content {
+  padding: var(--density-card-padding, 20px 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Conversation List ─────────────────────────────────────── */
+.tts-conv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tts-conv-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.15s;
+
+  &:hover {
+    background: color-mix(in srgb, var(--primary) 6%, transparent);
+  }
+
+  &.is-active {
+    background: color-mix(in srgb, var(--primary) 10%, transparent);
+    color: var(--primary);
+  }
+}
+
+.tts-conv-item-title {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tts-conv-item-date {
+  font-size: 0.6875rem;
+  color: var(--gray-400);
+}
+
+.tts-conv-item-delete {
+  opacity: 0;
+  transition: opacity 0.15s;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 6px;
+
+  .tts-conv-item:hover & {
+    opacity: 0.6;
+  }
+
+  &:hover {
+    opacity: 1 !important;
+  }
+}
+
+/* ── Editor ────────────────────────────────────────────────── */
+.tts-editor-card-body {
+  padding: var(--density-card-padding, 20px 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tts-editor-wrapper {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.tts-editor-content {
+  .ProseMirror {
+    min-height: 180px;
+    padding: 16px;
+    outline: none;
+    font-size: 0.9375rem;
+    line-height: var(--line-height, 1.6);
+
+    p.is-editor-empty:first-child::before {
+      content: attr(data-placeholder);
+      float: left;
+      color: var(--gray-400);
+      pointer-events: none;
+      height: 0;
+    }
+  }
+}
+
+/* ── Voice Mention Chips (in editor) ──────────────────────── */
+.voice-mention {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 10px 1px 6px;
+  border-radius: 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--voice-mention-color, var(--primary)) 12%, transparent);
+  color: var(--voice-mention-color, var(--primary));
+  vertical-align: baseline;
+  user-select: none;
+}
+
+.voice-mention::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--voice-mention-color, var(--primary));
+}
+
+/* ── Voice Mention Suggestion Dropdown ────────────────────── */
+.voice-mention-suggestion {
+  position: fixed;
+  z-index: 1000;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  min-width: 200px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.voice-mention-suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: calc(var(--radius) - 2px);
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.875rem;
+  text-align: left;
+  color: inherit;
+
+  &:hover,
+  &.is-selected {
+    background: var(--gray-100);
+  }
+}
+
+.voice-mention-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--voice-dot-color, var(--primary));
+}
+
+.voice-mention-suggestion-empty {
+  padding: 12px;
+  font-size: 0.8125rem;
+  color: var(--gray-400);
+  text-align: center;
+}
+
+/* ── Audio Player ──────────────────────────────────────────── */
+.tts-audio-player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: white;
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-100);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.tts-audio-player-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--primary);
+  color: white;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 0.875rem;
+
+  &:hover {
+    background: var(--primary-dark);
+  }
+}
+
+.tts-audio-progress {
+  flex: 1;
+  height: 6px;
+  background: var(--gray-200);
+  border-radius: calc(var(--radius) / 2);
+  cursor: pointer;
+}
+
+.tts-audio-progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: calc(var(--radius) / 2);
+  transition: width 0.1s;
+}
+
+.tts-audio-time {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  min-width: 80px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Generation Progress ───────────────────────────────────── */
+.tts-generation-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: white;
+  border: 1px solid var(--gray-100);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.tts-progress-bar {
+  height: 6px;
+  background: var(--gray-200);
+  border-radius: calc(var(--radius) / 2);
+  overflow: hidden;
+}
+
+.tts-progress-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: calc(var(--radius) / 2);
+  transition: width 0.3s ease;
+}
+
+.tts-progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+}
+
+/* ── Voice Card ────────────────────────────────────────────── */
+.tts-voice-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+  border-left: 4px solid var(--voice-color, var(--gray-300));
+  background: white;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.tts-voice-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tts-voice-card-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--voice-dot-bg, var(--gray-400));
+}
+
+.tts-voice-card-name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.tts-voice-card-badges {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.tts-voice-card-badge {
+  font-size: 0.625rem;
+  padding: 2px 8px;
+  border-radius: 1rem;
+  background: var(--gray-100);
+  color: var(--gray-500);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.tts-voice-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.tts-voice-card-audio {
+  width: 100%;
+  height: 32px;
+  margin-top: 4px;
+}
+
+/* ── Voice Grid ────────────────────────────────────────────── */
+.tts-voice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--density-gap, 12px);
+}
+
+/* ── Voice Recorder ────────────────────────────────────────── */
+.tts-voice-recorder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+.tts-record-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid var(--gray-300);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &.is-recording {
+    border-color: var(--danger);
+    animation: tts-pulse 1.5s ease-in-out infinite;
+  }
+}
+
+.tts-record-indicator {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--danger);
+  transition: all 0.2s;
+
+  .tts-record-btn.is-recording & {
+    border-radius: calc(var(--radius) / 2);
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.tts-record-timer {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes tts-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.3); }
+  50% { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); }
+}
+
+/* ── Create Voice Tabs ─────────────────────────────────────── */
+.tts-create-voice-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--gray-200);
+  margin-bottom: 16px;
+}
+
+.tts-create-voice-tab {
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--gray-500);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+
+  &.is-active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+}
+
+/* ── Upload Zone ───────────────────────────────────────────── */
+.tts-upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 24px;
+  border: 2px dashed var(--gray-300);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.15s;
+
+  &:hover {
+    border-color: var(--primary);
+  }
+}
+
+.tts-upload-zone-label {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+}
+
+.tts-upload-zone-hint {
+  font-size: 0.75rem;
+  color: var(--gray-400);
+}
+
+/* ── Reference text block ──────────────────────────────────── */
+.tts-reference-text {
+  padding: 20px;
+  background: var(--gray-100);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--primary);
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  color: var(--gray-700);
+}
+
+/* ── Audio Editor Panel ────────────────────────────────────── */
+.tts-audio-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.tts-audio-editor-waveforms {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tts-waveform-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tts-waveform-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-500);
+}
+
+.tts-waveform-canvas {
+  width: 100%;
+  height: 64px;
+  border-radius: calc(var(--radius) - 2px);
+  background: var(--gray-100);
+}
+
+.tts-audio-editor-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tts-control-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 70px;
+  align-items: center;
+  gap: 12px;
+
+  label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--gray-600);
+  }
+
+  input[type="range"] {
+    width: 100%;
+    height: 4px;
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
+}
+
+.tts-control-value {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--gray-500);
+  text-align: right;
+}
+
+.tts-audio-editor-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ── Dark theme ────────────────────────────────────────────── */
+[data-theme="dark"] {
+  .tts-conv-item {
+    &:hover {
+      background: color-mix(in srgb, var(--primary) 8%, transparent);
+    }
+
+    &.is-active {
+      background: color-mix(in srgb, var(--primary) 12%, transparent);
+      color: var(--primary-light);
+    }
+  }
+
+  .tts-editor-wrapper {
+    border-color: var(--gray-700);
+  }
+
+  .tts-editor-content .ProseMirror {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .voice-mention {
+    background: color-mix(in srgb, var(--voice-mention-color, var(--primary)) 20%, transparent);
+    color: var(--voice-mention-color, var(--primary-light));
+  }
+
+  .voice-mention-suggestion {
+    background: #1e1b2e;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .voice-mention-suggestion-item {
+    &:hover,
+    &.is-selected {
+      background: rgba(255, 255, 255, 0.06);
+    }
+  }
+
+  .tts-audio-player {
+    background: #1e1b2e;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .tts-generation-progress {
+    background: #1e1b2e;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .tts-voice-card {
+    background: #1e1b2e;
+    border-color: rgba(255, 255, 255, 0.08);
+    border-left-color: var(--voice-color, var(--gray-600));
+  }
+
+  .tts-voice-card-badge {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--gray-400);
+  }
+
+  .tts-upload-zone {
+    border-color: var(--gray-600);
+  }
+
+  .tts-reference-text {
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .tts-create-voice-tabs {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .tts-record-timer {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .tts-conv-item-date {
+    color: var(--gray-500);
+  }
+
+  .tts-waveform-canvas {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .tts-control-row label {
+    color: var(--gray-400);
+  }
+}

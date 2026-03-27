@@ -1,7 +1,7 @@
 {
   "name": "sitter",
   "private": true,
-  "version": "2026.03.9",
+  "version": "2026.03.10",
   "type": "module",
   "scripts": {
     "dev": "vite",
